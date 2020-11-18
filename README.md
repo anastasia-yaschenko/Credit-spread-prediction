@@ -1,1 +1,1 @@
-# Credit-spread-prediction
+# Using time series models to predict credit spread

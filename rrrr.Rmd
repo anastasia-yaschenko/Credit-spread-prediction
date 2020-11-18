@@ -1,0 +1,68 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+Hello
+```{r}
+library(xts)
+library(tseries)
+library(forecast)
+library(urca)
+library(rlist)
+library(strucchange)
+library(vars)
+library(aTSA)
+library(tsDyn)
+library(ggplot2)
+library(xtable)
+Sys.setlocale(locale = "C")
+
+wd<-"C:/Users/Dell/Desktop/Time-series project"
+setwd(wd)
+
+#Load data
+data<-read.csv2("BAMLH0A0HYM2.csv", sep = ",", dec = ".", na.strings = ".")
+data<-data[!is.na(data$BAMLH0A0HYM2), ] #delete NA
+row.names(data)<-data$DATE
+colnames(data)<-c('DATE', 'SPREAD')
+spread_for_plot<-xts(data$SPREAD, as.Date(data$DATE))
+plot(spread_for_plot, main = 'Credit spread')
+
+sp500<-read.csv2("SP500.csv", sep = ",", dec = ".", na.strings = ".")
+sp500<-sp500[!is.na(sp500$SP500), ]
+row.names(sp500)<-sp500$DATE
+sp_for_plot<-xts(sp500$SP500, as.Date(sp500$DATE))
+plot(sp_for_plot, main = 'S&P500')
+
+#data used for testing cointegration
+total_df<-merge(data, sp500, by = 0)
+
+
+#Make test set from last 11 days
+hold_out<-data[seq(dim(data)[1]-10, dim(data)[1]), ]
+#Train data
+spread<-data[seq(1, dim(data)[1]-10),]$SPREAD
+spread<-xts(spread, as.Date(data[seq(1, dim(data)[1]-10),]$DATE))
+
+sp<-sp500$SP500
+
+#DATA EXPLORATION
+#We can take log of time series to reduce possible heteroscedasticity
+log_spread<-log(spread)
+log_sp<-log(sp)
+log_sp<-xts(log_sp, as.Date(sp500$DATE))
+
+total_df$SPREAD<-log(total_df$SPREAD)
+total_df$SP500<-log(total_df$SP500)
+hold_out$SPREAD<-log(hold_out$SPREAD)
+
+plot(spread[seq(0,50)], type="l", main = 'Spread')#before transformation
+```
+
+
+```{r}
+plot(log_spread[seq(0,50)], type="l", main = 'Log(spread)')#after transformation
+
+```
+
+
